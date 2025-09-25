@@ -9,14 +9,15 @@ spec:
         repoURL: https://github.com/samuelamaralls/gitops
         revision: main
         files:
-          - infra/*/Chart.yaml
+          - path: infra/monitoring/Chart.yaml
+          - path: infra/keycloak/Chart.yaml
   template:
     metadata:
       name: '{{path.basename}}'
     spec:
       project: default
       source:
-        repoURL: 'https://github.com/samuelamaralls/gitops'
+        repoURL: https://github.com/samuelamaralls/gitops
         path: 'infra/{{path.basename}}'
         targetRevision: main
         helm:
@@ -29,3 +30,6 @@ spec:
         automated:
           prune: true
           selfHeal: true
+        syncOptions:
+          - ServerSideApply=true
+          - CreateNamespace=true
