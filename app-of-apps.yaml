@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: app-of-apps-infra
+  namespace: argocd-prd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/samuelamaralls/gitops
+        revision: main
+        directories:
+          - path: infra/*
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      project: default
+      source:
+        repoURL: |
+          {{- if eq path.basename "monitoring" }}
+          https://prometheus-community.github.io/helm-charts
+          {{- else if eq path.basename "kaycloak" }}
+          https://www.keycloak.org/helm/charts
+          {{- end }}
+        chart: |
+          {{- if eq path.basename "monitoring" }}
+          kube-prometheus-stack
+          {{- else if eq path.basename "kaycloak" }}
+          keycloak
+          {{- end }}
+        targetRevision: |
+          {{- if eq path.basename "monitoring" }}
+          45.0.0
+          {{- else if eq path.basename "kaycloak" }}
+          21.1.1
+          {{- end }}
+        helm:
+          valueFiles:
+            - '{{path}}/values.yaml'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
