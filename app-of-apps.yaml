@@ -1,4 +1,3 @@
-# gitops/app-of-apps.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -10,22 +9,22 @@ spec:
         repoURL: https://github.com/samuelamaralls/gitops
         revision: main
         files:
-          - path: apps.yaml   # aqui vai apenas o apps.yaml
+          - infra/*/Chart.yaml
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{path.basename}}'
     spec:
       project: default
       source:
-        repoURL: '{{repoURL}}'
-        chart: '{{chart}}'
-        targetRevision: '{{version}}'
+        repoURL: 'https://github.com/samuelamaralls/gitops'
+        path: 'infra/{{path.basename}}'
+        targetRevision: main
         helm:
           valueFiles:
-            - 'infra/{{name}}/values.yaml'
+            - values.yaml
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{name}}'
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
           prune: true
