@@ -5,4 +5,4 @@ version: 0.1.0
 dependencies:
   - name: fluent-bit
     version: "0.52.0"
-    repository: "https://prometheus-community.github.io/helm-charts"
+    repository: "https://fluent.github.io/helm-charts"
